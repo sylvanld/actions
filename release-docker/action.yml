@@ -1,0 +1,43 @@
+name: 'Release docker'
+description: 'Build docker container for both ARM64/v8 and AMD64 architectures, then publish it in a registry'
+
+inputs:
+  context:
+    description: 'Path to the folder containing source code and Dockerfile required to build image'
+    required: false
+    default: '.'
+  image:
+    description: 'Name of the image to be built (without registry prefix)'
+    required: true
+  org:
+    description: 'Organization that will own image in image registry'
+    required: true
+  registry:
+    description: 'Docker registry to push the image'
+    required: false
+    default: 'docker.io'
+
+runs:
+  using: "composite"
+  steps:
+    # retrieve tag by parsing github_ref
+    - shell: bash
+      run: echo "RELEASED_VERSION=${{github.ref}}" | sed "s/refs\/tags\///" >> $GITHUB_ENV
+      
+    - shell: bash
+      run: echo "IMAGE_FULL_NAME=${{inputs.registry}}/${{inputs.org}}/${{inputs.image}}" >> $GITHUB_ENV
+    
+    # setup qemu required to build image for ARM arch
+    - shell: bash
+      run: |
+        sudo apt update
+        sudo apt-get install -y qemu-user-static binfmt-support
+    
+    # build and publish image for both ARM64/v8 and AMD64
+    - shell: bash
+      run: |
+        docker buildx create --use --name cross-builder
+        docker buildx inspect --bootstrap
+        echo docker buildx build --platform linux/amd64,linux/arm64 --push -t ${{env.IMAGE_FULL_NAME}}:${{env.RELEASED_VERSION}} -t ${{env.IMAGE_FULL_NAME}}:latest ${{inputs.context}}
+        docker buildx build --platform linux/amd64,linux/arm64 --push -t ${{env.IMAGE_FULL_NAME}}:${{env.RELEASED_VERSION}} -t ${{env.IMAGE_FULL_NAME}}:latest ${{inputs.context}}
+      

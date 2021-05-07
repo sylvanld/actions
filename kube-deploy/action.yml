@@ -1,0 +1,44 @@
+name: 'Deploy using Kubernetes'
+description: 'Install kubectl, create .kube/config from secrets and deploy application reading manifest'
+inputs:
+  kubectl_version:  # id of input
+    description: 'Version of kubectl that will be installed'
+    required: false
+    default: ''
+  kube_config:
+    description: 'Configuration file used to define account, cluster and context used in deployment'
+    required: true
+  deployment:
+    description: 'Path to the file describing kubernetes deployment'
+    required: false,
+    default: 'deployment.yml'
+runs:
+  using: "composite"
+  steps:
+    # Install kubectl
+    - shell: bash
+      run: |
+        latest_kubectl_version=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
+        specified_kubectl_version=${{ inputs.kubectl_version }}
+        installed_kubectl_version=${specified_kubectl_version:-$latest_kubectl_version}
+        curl -LO https://storage.googleapis.com/kubernetes-release/release/${installed_kubectl_version}/bin/linux/amd64/kubectl
+        chmod +x ./kubectl
+        sudo mv ./kubectl /usr/local/bin/kubectl
+        kubectl --help
+    
+    - shell: bash
+      run: |
+        mkdir -p ~/.kube/
+        cat <<-EOF > ~/.kube/config
+        ${{ inputs.kube_config }}
+        EOF
+    
+    # TODO: pick "latest" if ref is not prefixed with refs/tag
+    - shell: bash
+      run: |
+        echo "DEPLOYED_VERSION=${{github.ref}}" | sed "s/refs\/tags\///" >> $GITHUB_ENV
+      
+    - shell: bash
+      run: |
+        cat deployment.yml | envsubst
+        cat deployment.yml | envsubst | kubectl apply -f -
