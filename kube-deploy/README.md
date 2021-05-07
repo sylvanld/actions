@@ -18,7 +18,7 @@ For example, to apply kubernetes deployment described in `deployment.yml` file t
 
 |parameter|description|optional|default|
 |-|-|-|-|
-|**kube_config**|Multiline string containing configuration to access your cluster (usually located in ~/.kube/config)|no|-|
+|**kube_config**|Multiline string containing configuration to access your cluster|no|-|
 |**kubectl_version**|Version of kubernetes used to send apply commands to your cluster|yes|latest stable|
 |**deployment**|Path to the file describing Deployments/Services/Ingresses/... |yes|`deployment.yml`|
 
