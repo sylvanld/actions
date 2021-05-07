@@ -1,6 +1,6 @@
-# Release Docker
+# Deploy to Kubernetes
 
-*This action aims to quickly build and publish docker images for multiple architectures (AMD/ARM).*
+*This action aims to quickly deploy applications with kubernetes.*
 
 ## Usage
 
