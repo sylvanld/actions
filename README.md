@@ -1,7 +1,6 @@
-# Custom actions
+# Organization actions
 
-*Very opinionated actions, without garantee of any kind concerning retro-compatibility. 
-Mostly suitable for my own use to build and deploy stuff*
+*Very opinionated actions, mostly made to speed up CI/CD work and increase maintainability in this GitHub org.*
 
 ## Actions defined here
 
