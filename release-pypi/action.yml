@@ -22,7 +22,7 @@ runs:
 
     # update version in setup.py
     - shell: bash
-      run: python ${{ github.action_path }}/update-version.sh ${{inputs.context}} ${{env.RELEASED_VERSION}}
+      run: python ${{ github.action_path }}/update-version.py ${{inputs.context}} ${{env.RELEASED_VERSION}}
     
     # build python package
     - shell: bash
