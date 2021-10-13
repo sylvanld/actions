@@ -6,3 +6,4 @@
 
 - [Build and publish docker for multiple architectures](./release-docker)
 - [Deploy application to kubernetes](./kube-deploy)
+- [Publish python package to PyPI](./release-pypi)
