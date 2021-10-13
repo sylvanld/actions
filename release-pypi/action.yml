@@ -33,5 +33,5 @@ runs:
       run: pip install twine
     
     # distribute package to pypi
-    - shell:
+    - shell: bash
       run: twine upload -u ${{inputs.username}} -p ${{inputs.password}} dist/*
