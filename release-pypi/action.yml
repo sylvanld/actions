@@ -1,0 +1,37 @@
+name: 'Release docker'
+description: 'Build docker container for both ARM64/v8 and AMD64 architectures, then publish it in a registry'
+
+inputs:
+  context:
+    description: 'Path to the folder containing setup.py of the python package'
+    required: false
+    default: '.'
+  username:
+    description: 'Username used to upload package to PyPI'
+    required: true
+  password:
+    description: 'Password or token used to upload package to PyPI'
+    required: true
+  
+runs:
+  using: "composite"
+  steps:
+    # compute release tag by parsing github_ref for git tag
+    - shell: bash
+      run: echo "RELEASED_VERSION=${{github.ref}}" | sed "s/refs\/tags\///" >> $GITHUB_ENV
+
+    # update version in setup.py
+    - shell: bash
+      run: python ${{ github.action_path }}/update-version.sh ${{inputs.context}} ${{env.RELEASED_VERSION}}
+    
+    # build python package
+    - shell: bash
+      run: python ${{inputs.context}}/setup.py sdist
+
+    # install twine
+    - shell: bash
+      run: pip install twine
+    
+    # distribute package to pypi
+    - shell:
+      run: twine upload -u ${{inputs.username}} -p ${{inputs.password}} dist/*
